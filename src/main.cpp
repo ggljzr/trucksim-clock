@@ -15,6 +15,9 @@ LiquidCrystal_PCF8574 lcd(0x27);
 WiFiClient wifi_client;
 PubSubClient mqtt_client(wifi_client);
 
+// Current game time in seconds, updated from trucksim/channel/game/time topic.
+uint32_t current_time = 0;
+
 // Map pin char used for distance display.
 byte char_mappin[] = {
     B00000,
@@ -90,8 +93,13 @@ void welcome_screen(const char *game_id, unsigned int game_version)
  * Formats given time (in seconds) as 'Weekday hh:mm' and stores it in out_buffer.
  * Outbuffer has to be at least 4 (weekday and space) + 5 (hh:mm) + 1 (zero term) = 10 characters long.
  */
-void seconds_to_hhmmdd(uint32_t seconds, const char *out_buffer)
+void seconds_to_hhmmdd(uint32_t seconds, char *out_buffer)
 {
+  uint8_t weekday_num = (seconds / (60 * 60 * 24)) % 7;
+  uint32_t hours = (seconds / 3600) % 24;
+  uint32_t minutes = (seconds % 3600) / 60;
+
+  snprintf(out_buffer, 10, "%s %02u:%02u", weekdays[weekday_num], hours, minutes);
 }
 
 void seconds_to_hours_minutes(uint32_t seconds, uint32_t &hours, uint32_t &minutes)
@@ -101,25 +109,38 @@ void seconds_to_hours_minutes(uint32_t seconds, uint32_t &hours, uint32_t &minut
 }
 
 /**
- * Display given time (in seconds) as a time until some event, e.g. ETA or rest stop.
+ * Display given amount of time (in seconds) as a time until some event, e.g. ETA or rest stop.
  * Row and col specify the position on the screen, label is a single character to display before the formated time.
  *
- * E. g.: P: 01h 23m
+ * current_time global variable (containing current game time in seconds) is used to calculate the time when the event will happen.
+ *
+ * E. g.: P: 01h 23m MON 12:34
  */
 void display_time_until(uint32_t seconds, uint8_t row, uint8_t col, char label)
 {
   uint32_t hours = 0, minutes = 0;
   seconds_to_hours_minutes(seconds, hours, minutes);
 
+  // buffer for time string in weekday hh:mm format, filled
+  // by seconds_to_hhmmdd function
+  char time_str[16];
+  seconds_to_hhmmdd(seconds + current_time, time_str);
+
   lcd.setCursor(col, row);
-  lcd.printf("%c: %02uh %02um", label, hours, minutes);
+  lcd.printf("%c: %02uh %02um %s", label, hours, minutes, time_str);
 }
 
+/**
+ * Display given ETA (in seconds until the event) on the screen.
+ */
 void display_eta(uint32_t seconds)
 {
   display_time_until(seconds, 2, 0, '\x02');
 }
 
+/**
+ * Display given rest stop (in seconds until the event) on the screen.
+ */
 void display_rest_stop(uint32_t seconds)
 {
   display_time_until(seconds, 3, 0, '\x03');
@@ -188,6 +209,15 @@ void callback(char *topic, byte *payload, unsigned int length)
     return;
   }
 
+  if (strcmp(topic, trucksim_topics::kTime) == 0)
+  {
+    // current game time form API as minutes from MON 00:00
+    // converted to seconds
+    uint32_t current_time_minutes = doc["value"];
+    current_time = current_time_minutes * 60;
+    return;
+  }
+
   if (strcmp(topic, trucksim_topics::kDistance) == 0)
   {
     // distance from API in meters
@@ -220,6 +250,7 @@ void mqtt_reconnect()
     if (mqtt_client.connect("ESP32Client"))
     {
       mqtt_client.subscribe(trucksim_topics::kGameInfo);
+      mqtt_client.subscribe(trucksim_topics::kTime);
       mqtt_client.subscribe(trucksim_topics::kDistance);
       mqtt_client.subscribe(trucksim_topics::kEta);
       mqtt_client.subscribe(trucksim_topics::kRestStop);
