@@ -112,7 +112,7 @@ void goodbye_screen()
 
 void callback(char *topic, byte *payload, unsigned int length)
 {
-  DynamicJsonDocument doc(1024);
+  StaticJsonDocument<512> doc;
   auto err = deserializeJson(doc, payload);
 
   if (err)
