@@ -14,6 +14,39 @@ LiquidCrystal_PCF8574 lcd(0x27);
 WiFiClient wifi_client;
 PubSubClient mqtt_client(wifi_client);
 
+// Map pin char used for distance display.
+byte char_mappin[] = {
+    B00000,
+    B01110,
+    B11111,
+    B11111,
+    B11111,
+    B01110,
+    B00100,
+    B00100};
+
+// Stopwatch char used for ETA display.
+byte char_stopwatch[] = {
+    B00000,
+    B01110,
+    B10101,
+    B10101,
+    B10101,
+    B10011,
+    B10001,
+    B01110};
+
+// Mug char used for rest stop display.
+byte char_mug[] = {
+    B01010,
+    B00101,
+    B00000,
+    B01111,
+    B11111,
+    B10111,
+    B11111,
+    B01111};
+
 /**
  * Screen displayed when waiting for WiFi connection.
  */
@@ -52,11 +85,11 @@ void default_telemetry_screen()
   lcd.setCursor(0, 0);
   lcd.print("MON 00:00");
   lcd.setCursor(0, 1);
-  lcd.print("D:           9999 km");
+  lcd.print("\x01:           9999 km");
   lcd.setCursor(0, 2);
-  lcd.print("E: 99h 59m MON 00:00");
+  lcd.print("\x02: 99h 59m MON 00:00");
   lcd.setCursor(0, 3);
-  lcd.print("P: 99h 59m MON 00:00");
+  lcd.print("\x03: 99h 59m MON 00:00");
 }
 
 /**
@@ -123,9 +156,16 @@ void setup()
   lcd.begin(20, 4);
   lcd.setBacklight(255);
 
+  delay(100);
+
   WiFi.begin(kWifiSSID, kWifiPassword);
 
   lcd.print("Connecting to WiFi");
+
+  lcd.createChar(1, char_mappin);    // use \x01 to display this char
+  lcd.createChar(2, char_stopwatch); // use \x02 to display this char
+  lcd.createChar(3, char_mug);       // use \x03 to display this char
+
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(500);
