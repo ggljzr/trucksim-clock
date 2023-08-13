@@ -80,10 +80,10 @@ void welcome_screen(const char *game_id, unsigned int game_version)
 /**
  * Display given distance (in km) to target on the screen.
  */
-void display_distance(uint32_t distance)
+void display_distance(float_t distance)
 {
   lcd.setCursor(0, 1);
-  lcd.printf("\x01: %14d km", distance);
+  lcd.printf("\x01: %14.1f km", distance);
 }
 
 /**
@@ -144,8 +144,9 @@ void callback(char *topic, byte *payload, unsigned int length)
 
   if (strcmp(topic, trucksim_topics::kDistance) == 0)
   {
-    uint32_t distance = doc["value"];
-    display_distance(distance);
+    // distance from API in meters
+    float_t distance = doc["value"];
+    display_distance(distance / 1000.0f);
     return;
   }
 }
