@@ -174,8 +174,6 @@ void setup()
   lcd.begin(20, 4);
   lcd.setBacklight(255);
 
-  delay(100);
-
   WiFi.begin(kWifiSSID, kWifiPassword);
 
   lcd.print("Connecting to WiFi");
