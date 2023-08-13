@@ -14,6 +14,9 @@ LiquidCrystal_PCF8574 lcd(0x27);
 WiFiClient wifi_client;
 PubSubClient mqtt_client(wifi_client);
 
+/**
+ * Screen displayed when waiting for WiFi connection.
+ */
 void waiting_screen()
 {
   lcd.clear();
@@ -22,6 +25,9 @@ void waiting_screen()
   lcd.print("Waiting for game...");
 }
 
+/**
+ * Screen displayed when game is started (recieved non-null on trucksim/gameinfo topic).
+ */
 void welcome_screen(const char *game_id, unsigned int game_version)
 {
   lcd.clear();
@@ -37,6 +43,18 @@ void welcome_screen(const char *game_id, unsigned int game_version)
   lcd.printf("Version: %d", game_version);
 }
 
+/**
+ * Screen used to setup telemetry display with default values.
+ */
+void default_telemetry_screen()
+{
+  lcd.clear();
+  lcd.print("Telemetry");
+}
+
+/**
+ * Screen displayed when game is exited (null on trucksim/gameinfo topic).
+ */
 void goodbye_screen()
 {
   lcd.clear();
@@ -61,7 +79,18 @@ void callback(char *topic, byte *payload, unsigned int length)
     if (game_id == nullptr)
       goodbye_screen();
     else
+    {
+      // Briefly display welcome screen, then switch to the telemetry screen.
       welcome_screen(game_id, game_version);
+      // This delay means that processing this topic will block main thread for 3 seconds.
+      // If another message is recieved in this time, it will be processed after this delay
+      // This should not interfere with program function however.
+      delay(3000);
+      // Display telemetry screen with default values.
+      default_telemetry_screen();
+    }
+
+    return;
   }
 }
 
