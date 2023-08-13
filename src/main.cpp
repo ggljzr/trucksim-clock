@@ -77,6 +77,37 @@ void welcome_screen(const char *game_id, unsigned int game_version)
   lcd.printf("Version: %d", game_version);
 }
 
+void seconds_to_hours_minutes(uint32_t seconds, uint32_t &hours, uint32_t &minutes)
+{
+  hours = seconds / 3600;
+  minutes = (seconds % 3600) / 60;
+}
+
+/**
+ * Display given time (in seconds) as a time until some event, e.g. ETA or rest stop.
+ * Row and col specify the position on the screen, label is a single character to display before the formated time.
+ *
+ * E. g.: P: 01h 23m
+ */
+void display_time_until(uint32_t seconds, uint8_t row, uint8_t col, char label)
+{
+  uint32_t hours = 0, minutes = 0;
+  seconds_to_hours_minutes(seconds, hours, minutes);
+
+  lcd.setCursor(col, row);
+  lcd.printf("%c: %02uh %02um", label, hours, minutes);
+}
+
+void display_eta(uint32_t seconds)
+{
+  display_time_until(seconds, 2, 0, '\x02');
+}
+
+void display_rest_stop(uint32_t seconds)
+{
+  display_time_until(seconds, 3, 0, '\x03');
+}
+
 /**
  * Display given distance (in km) to target on the screen.
  */
@@ -95,10 +126,8 @@ void default_telemetry_screen()
   lcd.setCursor(0, 0);
   lcd.print("MON 00:00");
   display_distance(0);
-  lcd.setCursor(0, 2);
-  lcd.print("\x02: 99h 59m MON 00:00");
-  lcd.setCursor(0, 3);
-  lcd.print("\x03: 99h 59m MON 00:00");
+  display_eta(0);
+  display_rest_stop(0);
 }
 
 /**
