@@ -77,6 +77,15 @@ void welcome_screen(const char *game_id, unsigned int game_version)
 }
 
 /**
+ * Display given distance (in km) to target on the screen.
+ */
+void display_distance(uint32_t distance)
+{
+  lcd.setCursor(0, 1);
+  lcd.printf("\x01: %14d km", distance);
+}
+
+/**
  * Screen used to setup telemetry display with default values.
  */
 void default_telemetry_screen()
@@ -84,8 +93,7 @@ void default_telemetry_screen()
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("MON 00:00");
-  lcd.setCursor(0, 1);
-  lcd.print("\x01:           9999 km");
+  display_distance(0);
   lcd.setCursor(0, 2);
   lcd.print("\x02: 99h 59m MON 00:00");
   lcd.setCursor(0, 3);
@@ -132,6 +140,13 @@ void callback(char *topic, byte *payload, unsigned int length)
 
     return;
   }
+
+  if (strcmp(topic, "trucksim/channel/truck/navigation/distance") == 0)
+  {
+    uint32_t distance = doc["value"];
+    display_distance(distance);
+    return;
+  }
 }
 
 void mqtt_reconnect()
@@ -141,6 +156,7 @@ void mqtt_reconnect()
     if (mqtt_client.connect("ESP32Client"))
     {
       mqtt_client.subscribe("trucksim/gameinfo");
+      mqtt_client.subscribe("trucksim/channel/truck/navigation/distance");
     }
     else
     {
