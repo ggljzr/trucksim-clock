@@ -48,6 +48,15 @@ byte char_mug[] = {
     B11111,
     B01111};
 
+const char *weekdays[10] = {
+    "MON",
+    "TUE",
+    "WED",
+    "THU",
+    "FRI",
+    "SAT",
+    "SUN"};
+
 /**
  * Screen displayed when waiting for WiFi connection.
  */
@@ -75,6 +84,14 @@ void welcome_screen(const char *game_id, unsigned int game_version)
 
   lcd.setCursor(0, 2);
   lcd.printf("Version: %d", game_version);
+}
+
+/**
+ * Formats given time (in seconds) as 'Weekday hh:mm' and stores it in out_buffer.
+ * Outbuffer has to be at least 4 (weekday and space) + 5 (hh:mm) + 1 (zero term) = 10 characters long.
+ */
+void seconds_to_hhmmdd(uint32_t seconds, const char *out_buffer)
+{
 }
 
 void seconds_to_hours_minutes(uint32_t seconds, uint32_t &hours, uint32_t &minutes)
