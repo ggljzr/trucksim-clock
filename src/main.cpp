@@ -14,32 +14,55 @@ LiquidCrystal_PCF8574 lcd(0x27);
 WiFiClient wifi_client;
 PubSubClient mqtt_client(wifi_client);
 
-void callback(char *topic, byte *payload, unsigned int length)
+void waiting_screen()
 {
-  Serial.println("Message arrived");
-  DynamicJsonDocument doc(1024);
-  auto err = deserializeJson(doc, payload);
-
-  if (err)
-  {
-    lcd.clear();
-    lcd.print("Error parsing JSON");
-    return;
-  }
-
-  unsigned int game_version = doc["game_version"];
-  const char *game_id = doc["game_id"];
-
   lcd.clear();
-  lcd.print(topic);
+  lcd.print("WiFi connected...");
+  lcd.setCursor(0, 1);
+  lcd.print("Waiting for game...");
+}
+
+void welcome_screen(const char *game_id, unsigned int game_version)
+{
+  lcd.clear();
+  lcd.print("TruckSim Clock");
   lcd.setCursor(0, 1);
 
   if (game_id != nullptr)
     lcd.printf("Game: %s", game_id);
   else
     lcd.print("Game: unknown");
+
   lcd.setCursor(0, 2);
   lcd.printf("Version: %d", game_version);
+}
+
+void goodbye_screen()
+{
+  lcd.clear();
+  lcd.print("Goodbye...");
+}
+
+void callback(char *topic, byte *payload, unsigned int length)
+{
+  DynamicJsonDocument doc(1024);
+  auto err = deserializeJson(doc, payload);
+
+  if (err)
+  {
+    return;
+  }
+
+  if (strcmp(topic, "trucksim/gameinfo") == 0)
+  {
+    unsigned int game_version = doc["game_version"];
+    const char *game_id = doc["game_id"];
+
+    if (game_id == nullptr)
+      goodbye_screen();
+    else
+      welcome_screen(game_id, game_version);
+  }
 }
 
 void mqtt_reconnect()
@@ -59,8 +82,6 @@ void mqtt_reconnect()
 
 void setup()
 {
-  Serial.begin(115200);
-
   Wire.begin(esp32pins::kI2CSdaPin, esp32pins::kI2CSclPin);
 
   lcd.begin(20, 4);
@@ -74,13 +95,10 @@ void setup()
     delay(500);
   }
 
-  lcd.clear();
-  lcd.print("WiFi connected");
-
   mqtt_client.setServer(kMqttServer, 1883);
   mqtt_client.setCallback(callback);
 
-  Serial.println("Setup done");
+  waiting_screen();
 }
 
 void loop()
