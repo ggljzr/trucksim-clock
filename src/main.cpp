@@ -49,7 +49,14 @@ void welcome_screen(const char *game_id, unsigned int game_version)
 void default_telemetry_screen()
 {
   lcd.clear();
-  lcd.print("Telemetry");
+  lcd.setCursor(0, 0);
+  lcd.print("MON 00:00");
+  lcd.setCursor(0, 1);
+  lcd.print("D:           9999 km");
+  lcd.setCursor(0, 2);
+  lcd.print("E: 99h 59m MON 00:00");
+  lcd.setCursor(0, 3);
+  lcd.print("P: 99h 59m MON 00:00");
 }
 
 /**
