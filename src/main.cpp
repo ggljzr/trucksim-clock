@@ -16,13 +16,13 @@ WiFiClient wifi_client;
 PubSubClient mqtt_client(wifi_client);
 
 // Current game time in seconds, updated from trucksim/channel/game/time topic.
-uint32_t current_time = 0;
+uint32_t current_time{0};
 // Store current ETA and rest stop time for recalculation
 // when current time changes.
 // Current ETA
-uint32_t current_eta = 0;
+uint32_t current_eta{0};
 // Current rest stop time
-uint32_t current_rest_stop = 0;
+uint32_t current_rest_stop{0};
 
 // Map pin char used for distance display.
 byte char_mappin[] = {
@@ -114,6 +114,15 @@ void seconds_to_hours_minutes(uint32_t seconds, uint32_t &hours, uint32_t &minut
   minutes = (seconds % 3600) / 60;
 }
 
+void display_current_time(uint32_t seconds)
+{
+  char time_str[16];
+  seconds_to_hhmmdd(seconds, time_str);
+
+  lcd.setCursor(0, 0);
+  lcd.print(time_str);
+}
+
 /**
  * Display given amount of time (in seconds) as a time until some event, e.g. ETA or rest stop.
  * Row and col specify the position on the screen, label is a single character to display before the formated time.
@@ -167,8 +176,7 @@ void display_distance(float_t distance)
 void default_telemetry_screen()
 {
   lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.print("MON 00:00");
+  display_current_time(0);
   display_distance(0);
   display_eta(0);
   display_rest_stop(0);
@@ -221,6 +229,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     // converted to seconds
     uint32_t current_time_minutes = doc["value"];
     current_time = current_time_minutes * 60;
+    display_current_time(current_time);
 
     // recaulculate ETA and rest stop
     // since current time has changed
