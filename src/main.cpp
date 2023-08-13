@@ -17,6 +17,12 @@ PubSubClient mqtt_client(wifi_client);
 
 // Current game time in seconds, updated from trucksim/channel/game/time topic.
 uint32_t current_time = 0;
+// Store current ETA and rest stop time for recalculation
+// when current time changes.
+// Current ETA
+uint32_t current_eta = 0;
+// Current rest stop time
+uint32_t current_rest_stop = 0;
 
 // Map pin char used for distance display.
 byte char_mappin[] = {
@@ -215,6 +221,11 @@ void callback(char *topic, byte *payload, unsigned int length)
     // converted to seconds
     uint32_t current_time_minutes = doc["value"];
     current_time = current_time_minutes * 60;
+
+    // recaulculate ETA and rest stop
+    // since current time has changed
+    display_eta(current_eta);
+    display_rest_stop(current_rest_stop);
     return;
   }
 
@@ -229,16 +240,18 @@ void callback(char *topic, byte *payload, unsigned int length)
   if (strcmp(topic, trucksim_topics::kEta) == 0)
   {
     // ETA from API in seconds
-    uint32_t eta = doc["value"];
-    display_eta(eta);
+    current_eta = doc["value"];
+    display_eta(current_eta);
     return;
   }
 
   if (strcmp(topic, trucksim_topics::kRestStop) == 0)
   {
     // rest stop from API in minutes
-    uint32_t rest_stop = doc["value"];
-    display_rest_stop(rest_stop * 60);
+    uint32_t current_rest_stop_minutes = doc["value"];
+    // convert to seconds
+    current_rest_stop = current_rest_stop_minutes * 60;
+    display_rest_stop(current_rest_stop);
     return;
   }
 }
