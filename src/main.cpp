@@ -16,6 +16,7 @@ PubSubClient mqtt_client(wifi_client);
 
 void callback(char *topic, byte *payload, unsigned int length)
 {
+  Serial.println("Message arrived");
   DynamicJsonDocument doc(1024);
   auto err = deserializeJson(doc, payload);
 
@@ -32,7 +33,11 @@ void callback(char *topic, byte *payload, unsigned int length)
   lcd.clear();
   lcd.print(topic);
   lcd.setCursor(0, 1);
-  lcd.printf("Game: %s", game_id);
+
+  if (game_id != nullptr)
+    lcd.printf("Game: %s", game_id);
+  else
+    lcd.print("Game: unknown");
   lcd.setCursor(0, 2);
   lcd.printf("Version: %d", game_version);
 }
@@ -54,6 +59,8 @@ void mqtt_reconnect()
 
 void setup()
 {
+  Serial.begin(115200);
+
   Wire.begin(esp32pins::kI2CSdaPin, esp32pins::kI2CSclPin);
 
   lcd.begin(20, 4);
@@ -72,6 +79,8 @@ void setup()
 
   mqtt_client.setServer(kMqttServer, 1883);
   mqtt_client.setCallback(callback);
+
+  Serial.println("Setup done");
 }
 
 void loop()
