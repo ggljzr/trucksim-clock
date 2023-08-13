@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include <ArduinoJson.h>
 #include <LiquidCrystal_PCF8574.h>
 #include <PubSubClient.h>
 #include <WiFi.h>
@@ -15,13 +16,25 @@ PubSubClient mqtt_client(wifi_client);
 
 void callback(char *topic, byte *payload, unsigned int length)
 {
+  DynamicJsonDocument doc(1024);
+  auto err = deserializeJson(doc, payload);
+
+  if (err)
+  {
+    lcd.clear();
+    lcd.print("Error parsing JSON");
+    return;
+  }
+
+  unsigned int game_version = doc["game_version"];
+  const char *game_id = doc["game_id"];
+
   lcd.clear();
   lcd.print(topic);
   lcd.setCursor(0, 1);
-  for (int i = 0; i < length; i++)
-  {
-    lcd.print((char)payload[i]);
-  }
+  lcd.printf("Game: %s", game_id);
+  lcd.setCursor(0, 2);
+  lcd.printf("Version: %d", game_version);
 }
 
 void mqtt_reconnect()
@@ -30,7 +43,7 @@ void mqtt_reconnect()
   {
     if (mqtt_client.connect("ESP32Client"))
     {
-      mqtt_client.subscribe("esp32/test");
+      mqtt_client.subscribe("trucksim/gameinfo");
     }
     else
     {
