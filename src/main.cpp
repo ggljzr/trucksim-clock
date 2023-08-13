@@ -178,6 +178,22 @@ void callback(char *topic, byte *payload, unsigned int length)
     display_distance(distance / 1000.0f);
     return;
   }
+
+  if (strcmp(topic, trucksim_topics::kEta) == 0)
+  {
+    // ETA from API in seconds
+    uint32_t eta = doc["value"];
+    display_eta(eta);
+    return;
+  }
+
+  if (strcmp(topic, trucksim_topics::kRestStop) == 0)
+  {
+    // rest stop from API in minutes
+    uint32_t rest_stop = doc["value"];
+    display_rest_stop(rest_stop * 60);
+    return;
+  }
 }
 
 void mqtt_reconnect()
@@ -188,6 +204,8 @@ void mqtt_reconnect()
     {
       mqtt_client.subscribe(trucksim_topics::kGameInfo);
       mqtt_client.subscribe(trucksim_topics::kDistance);
+      mqtt_client.subscribe(trucksim_topics::kEta);
+      mqtt_client.subscribe(trucksim_topics::kRestStop);
     }
     else
     {
