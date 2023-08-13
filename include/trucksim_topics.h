@@ -1,3 +1,11 @@
+/**
+ * @file config.h
+ *
+ * @brief MQTT topic routes.
+ */
+
+#pragma once
+
 namespace trucksim_topics
 {
     auto constexpr kGameInfo = "trucksim/gameinfo";

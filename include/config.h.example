@@ -4,6 +4,8 @@
  * @brief Local configuration, containing WiFi SSID and password, and MQTT server address.
  */
 
+ #pragma once
+
 constexpr auto kWifiSSID = "";
 constexpr auto kWifiPassword = "";
 
