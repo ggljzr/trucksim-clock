@@ -9,6 +9,7 @@
 #include "pins.h"
 // see config.h.example
 #include "config.h"
+#include "trucksim_topics.h"
 
 LiquidCrystal_PCF8574 lcd(0x27);
 WiFiClient wifi_client;
@@ -119,7 +120,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     return;
   }
 
-  if (strcmp(topic, "trucksim/gameinfo") == 0)
+  if (strcmp(topic, trucksim_topics::kGameInfo) == 0)
   {
     unsigned int game_version = doc["game_version"];
     const char *game_id = doc["game_id"];
@@ -141,7 +142,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     return;
   }
 
-  if (strcmp(topic, "trucksim/channel/truck/navigation/distance") == 0)
+  if (strcmp(topic, trucksim_topics::kDistance) == 0)
   {
     uint32_t distance = doc["value"];
     display_distance(distance);
@@ -155,8 +156,8 @@ void mqtt_reconnect()
   {
     if (mqtt_client.connect("ESP32Client"))
     {
-      mqtt_client.subscribe("trucksim/gameinfo");
-      mqtt_client.subscribe("trucksim/channel/truck/navigation/distance");
+      mqtt_client.subscribe(trucksim_topics::kGameInfo);
+      mqtt_client.subscribe(trucksim_topics::kDistance);
     }
     else
     {
