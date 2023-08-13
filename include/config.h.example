@@ -1,0 +1,10 @@
+/**
+ * @file config.h
+ *
+ * @brief Local configuration, containing WiFi SSID and password, and MQTT server address.
+ */
+
+constexpr auto kWifiSSID = "";
+constexpr auto kWifiPassword = "";
+
+constexpr auto kMqttServer = "192.168.22.83";

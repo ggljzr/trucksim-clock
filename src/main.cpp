@@ -6,11 +6,8 @@
 #include <Wire.h>
 
 #include "pins.h"
-
-constexpr auto kWifiSSID = "";
-constexpr auto kWifiPassword = "";
-
-constexpr auto kMqttServer = "192.168.22.83";
+// see config.h.example
+#include "config.h"
 
 LiquidCrystal_PCF8574 lcd(0x27);
 WiFiClient wifi_client;
