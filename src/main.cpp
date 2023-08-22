@@ -57,7 +57,7 @@ byte char_mug[] = {
     B11111,
     B01111};
 
-const char *weekdays[10] = {
+const char *weekdays[] = {
     "MON",
     "TUE",
     "WED",
