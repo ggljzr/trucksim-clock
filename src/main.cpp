@@ -72,8 +72,13 @@ const char *weekdays[10] = {
 void waiting_screen()
 {
   lcd.clear();
-  lcd.print("WiFi connected...");
+  // use second row for this message
+  // this is a workaround, so when the board restarts and no game info message is recieved
+  // it can go directly to the displaying telemetry
+  // if the first row is used, the game time message from telemetry will overlap with WiFi connected message
   lcd.setCursor(0, 1);
+  lcd.print("WiFi connected...");
+  lcd.setCursor(0, 2);
   lcd.print("Waiting for game...");
 }
 
