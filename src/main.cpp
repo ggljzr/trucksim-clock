@@ -103,7 +103,7 @@ void seconds_to_hhmmdd(uint32_t seconds, char *out_buffer)
 {
   uint8_t weekday_num = (seconds / (60 * 60 * 24)) % 7;
   uint32_t hours = (seconds / 3600) % 24;
-  uint32_t minutes = (seconds % 3600) / 60;
+  uint32_t minutes = (seconds / 60) % 60;
 
   snprintf(out_buffer, 10, "%s %02u:%02u", weekdays[weekday_num], hours, minutes);
 }
