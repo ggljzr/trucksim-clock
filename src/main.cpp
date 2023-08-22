@@ -319,7 +319,7 @@ void loop()
     mqtt_reconnect();
   }
 
-  if (digitalRead(esp32pins::kOnOffSwitchPin) == LOW)
+  if (digitalRead(esp32pins::kOnOffSwitchPin) == HIGH)
     lcd.setBacklight(0);
   else
     lcd.setBacklight(255);
