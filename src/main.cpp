@@ -172,7 +172,7 @@ void display_rest_stop(uint32_t seconds)
 void display_distance(float_t distance)
 {
   lcd.setCursor(0, 1);
-  lcd.printf("\x01: %14.1f km", distance);
+  lcd.printf("\x01: %14.0f km", distance);
 }
 
 /**
