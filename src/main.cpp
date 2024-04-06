@@ -134,8 +134,8 @@ void display_rest_stop(uint32_t seconds)
 void display_distance(float_t distance)
 {
   char distance_str[20];
-  snprintf(distance_str, 20, "\x01: %14.0f km", distance);
-  Serial2.write("dist.txt=\"");
+  snprintf(distance_str, 20, "%.1f km", distance);
+  Serial2.write("distance.txt=\"");
   Serial2.write(distance_str);
   Serial2.write("\"");
   Serial2.write(0xff);
@@ -148,6 +148,11 @@ void display_distance(float_t distance)
  */
 void default_telemetry_screen()
 {
+  Serial2.write("page 1");
+  Serial2.write(0xff);
+  Serial2.write(0xff);
+  Serial2.write(0xff);
+
   display_current_time(0);
   display_distance(0);
   display_eta(0);
