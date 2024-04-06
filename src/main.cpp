@@ -66,7 +66,7 @@ void display_current_time(uint32_t seconds)
   char time_str[16];
   seconds_to_hhmmdd(seconds, time_str);
 
-  Serial2.write("clocl.txt=\"");
+  Serial2.write("clock.txt=\"");
   Serial2.write(time_str);
   Serial2.write("\"");
   Serial2.write(0xff);
