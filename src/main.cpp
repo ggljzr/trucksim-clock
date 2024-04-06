@@ -245,8 +245,6 @@ void setup()
   // nextion is connected to serial2
   Serial2.begin(115200);
 
-  Wire.begin(esp32pins::kI2CSdaPin, esp32pins::kI2CSclPin);
-
   WiFi.begin(kWifiSSID, kWifiPassword);
 
   while (WiFi.status() != WL_CONNECTED)
@@ -256,8 +254,6 @@ void setup()
 
   mqtt_client.setServer(kMqttServer, 1883);
   mqtt_client.setCallback(callback);
-
-  pinMode(esp32pins::kOnOffSwitchPin, INPUT_PULLUP);
 
   waiting_screen();
 }
