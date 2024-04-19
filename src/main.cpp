@@ -87,8 +87,8 @@ void seconds_to_time_until(uint32_t seconds, char *out_buffer)
   uint32_t hours_eta = 0, minutes_eta = 0;
   seconds_to_hours_minutes(seconds, hours_eta, minutes_eta);
 
-  // buffer for time string in weekday hh:mm format, filled
-  // by seconds_to_hhmmdd function
+  // hh:mm calculation
+  seconds += current_time;
   uint8_t weekday_num = (seconds / (60 * 60 * 24)) % 7;
   uint32_t hours = (seconds / 3600) % 24;
   uint32_t minutes = (seconds / 60) % 60;
